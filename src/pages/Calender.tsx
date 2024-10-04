@@ -49,19 +49,19 @@ const MyCalendar: React.FC = () => {
     };
 
     // Handle form submission (add or update event)
-    const handleTaskSubmit = (data: Event) => {
-        if (isEditMode && selectedEvent) {
-            // Update the event
-            setEvents(
-                events.map((e) => (e.id === selectedEvent.id ? { ...e, ...data } : e))
-            );
-        } else {
-            // Add a new event
-            const newEvent = { ...data, id: events.length + 1 };
-            setEvents([...events, newEvent]);
-        }
-        setIsModalOpen(false); // Close the modal after submission
-    };
+    // const handleTaskSubmit = (data: Event) => {
+    //     // if (isEditMode && selectedEvent) {
+    //     //     // Update the event
+    //     //     setEvents(
+    //     //         events.map((e) => (e.id === selectedEvent.id ? { ...e, ...data } : e))
+    //     //     );
+    //     // } else {
+    //     //     // Add a new event
+    //     //     const newEvent = { ...data, id: events.length + 1 };
+    //     //     setEvents([...events, newEvent]);
+    //     // }
+    //     setIsModalOpen(false); // Close the modal after submission
+    // };
 
     // Handle deleting an event
     const handleDeleteEvent = (event: Event) => {
@@ -90,9 +90,11 @@ const MyCalendar: React.FC = () => {
                 <AddTask
                     open={isModalOpen}
                     setOpen={setIsModalOpen}
-                    task={isEditMode ? selectedEvent : undefined} 
+                    // task={isEditMode ? selectedEvent : undefined} 
+                    task={isEditMode ? selectedEvent || undefined : undefined}
                     date={selectedDate} 
-                    onSubmit={handleTaskSubmit} 
+                    
+                    
                 />
             )}
         </div>
@@ -100,4 +102,9 @@ const MyCalendar: React.FC = () => {
 };
 
 export default MyCalendar;
+
+
+
+
+
 

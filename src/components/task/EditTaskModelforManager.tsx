@@ -1,81 +1,91 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-
 import React, { useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import Textbox from "../Textbox";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Button from "../Button";
 import ModalWrapper from "../ModelWrapper";
-import UserList from "./UserList";
 import SelectList from "../SelectList";
-import {  addTaskToAssign } from "../../Api/task"; 
+import { editTaskForManager } from "../../Api/task";
 
+// Constants for lists and priorities
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORITY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 
-interface Task {
-    title?: string;
-    team?: any[];
-    stage?: string;
-    priority?: string;
-    date?: string;
-}
 
-// interface AddTaskProps {
-//     open: boolean;
-//     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-//     task?: Task; 
-// }
 
-interface FormData {
-    title: string; 
-    date: string; 
-}
-
-interface AddTaskProps {
+interface EditTaskModalProps {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    task?: Task|undefined; 
-    date?: string;
+    task: any;  // Ensure task prop is passed correctly
 }
 
-const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
+interface FormData {
+    title: string;
+    date: string;
+}
+
+const EditTaskModalforManager: React.FC<EditTaskModalProps> = ({ open, setOpen, task }) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
-        setValue, 
-    } = useForm<FormData>({
-        defaultValues: {
-            title: task?.title || "",  
-            date: task?.date || date || "", 
-        }
-    });
+        setValue,
+    } = useForm<FormData>();
 
-    // Other state variables
-    const [team, setTeam] = useState<any[]>(task?.team || []);
-    const [stage, setStage] = useState<any>(task?.stage?.toUpperCase() || LISTS[0]);
-    const [priority, setPriority] = useState<any>(task?.priority?.toUpperCase() || PRIORITY[2]);
+    const [stage, setStage] = useState<string>(LISTS[0]);
+    const [priority, setPriority] = useState<string>(PRIORITY[2]);
     const [uploading, setUploading] = useState<boolean>(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    // Pre-fill the date field whenever the `date` prop changes
-    useEffect(() => {
-        if (date) {
-            setValue('date', date); // Set the date field with the selected date from the calendar
-        }
-    }, [date, setValue]);
+    // Convert date to "YYYY-MM-DD" format for the date input
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().split("T")[0]; // Converts to "YYYY-MM-DD"
+    };
 
+    // Pre-fill form when task data changes
+    useEffect(() => {
+        if (task) {
+            // Set task data into form fields
+            setValue("title", task.title);
+
+            // Format and set the date properly
+            if (task.date) {
+                const formattedDate = formatDate(task.date);
+                setValue("date", formattedDate);
+            }
+
+            setStage(task.stage.toUpperCase());
+            setPriority(task.priority.toUpperCase());
+        }
+    }, [task, setValue]);
     const submitHandler: SubmitHandler<FormData> = async (data) => {
         try {
             setUploading(true);
-            const response = await addTaskToAssign(data.title, data.date, team, stage, priority);
+
+            const updatedTask = {
+                ...task,
+                id: task._id,
+                title: data.title,
+                date: data.date,
+                stage,
+                priority,
+            };
+
+            console.log("ids,", updatedTask._id,)
+            const response = await editTaskForManager(
+                updatedTask._id,
+                updatedTask.title,
+                updatedTask.date,
+                updatedTask.stage,
+                updatedTask.priority
+            );
+
             console.log(response);
-            setOpen(false); // Close modal after successful submission
+            setOpen(false);
         } catch (error: any) {
-            setSubmitError(error.response?.data?.message || "Error submitting the task");
+            setSubmitError(error.response?.data?.message || "Error updating the task");
         } finally {
             setUploading(false);
         }
@@ -85,11 +95,11 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
         <ModalWrapper open={open} setOpen={setOpen}>
             <form onSubmit={handleSubmit(submitHandler)}>
                 <Dialog.Title as="h2" className="text-base font-bold leading-6 text-gray-900 mb-4">
-                    {task ? "UPDATE TASK" : "ADD TASK"}
+                    UPDATE TASK
                 </Dialog.Title>
 
                 <div className="mt-2 flex flex-col gap-6">
-                    {/* Task Title Input */}
+                    {/* Task title field */}
                     <Textbox
                         placeholder="Task Title"
                         type="text"
@@ -99,9 +109,9 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
                         register={register("title", { required: "Title is required" })}
                         error={errors.title ? errors.title.message : ""}
                     />
-                    <UserList setTeam={setTeam} team={team} />
-                    <div className="flex gap-4">
 
+                    {/* Stage and Date fields */}
+                    <div className="flex gap-4">
                         <SelectList
                             label="Task Stage"
                             lists={LISTS}
@@ -115,13 +125,13 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
                                 name="date"
                                 label="Task Date"
                                 className="w-full rounded"
-                                register={register("date", {
-                                    required: "Date is required!",
-                                })}
+                                register={register("date", { required: "Date is required!" })}
                                 error={errors.date ? errors.date.message : ""}
                             />
                         </div>
                     </div>
+
+                    {/* Priority Selection */}
                     <div className="flex gap-4">
                         <SelectList
                             label="Priority Level"
@@ -130,13 +140,17 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
                             setSelected={setPriority}
                         />
                     </div>
+
+                    {/* Error Message */}
                     {submitError && <span className="text-red-500">{submitError}</span>}
+
+                    {/* Submit and Cancel Buttons */}
                     <div className="bg-gray-50 py-6 sm:flex sm:flex-row-reverse gap-4">
                         {uploading ? (
-                            <span className="text-sm py-2 text-red-500">Uploading...</span>
+                            <span className="text-sm py-2 text-red-500">Updating...</span>
                         ) : (
                             <Button
-                                label="Submit"
+                                label="Update"
                                 type="submit"
                                 className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700 sm:w-auto"
                             />
@@ -155,11 +169,4 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
     );
 };
 
-export default AddTask;
-
-
-
-
-
-
-
+export default EditTaskModalforManager;

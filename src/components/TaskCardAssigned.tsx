@@ -194,9 +194,8 @@
 
 // export default TaskCardAssigned;
 import clsx from "clsx";
-import React, { useState } from "react";
+import React from "react";
 import {
-    MdAttachFile,
     MdKeyboardDoubleArrowUp,
     MdKeyboardArrowUp,
     MdKeyboardArrowDown,
@@ -239,7 +238,7 @@ const ICONS: any = {
 
 const TaskCardAssigned: React.FC<TaskCardProps> = ({ task }) => {
     const user = useSelector((state: RootState) => state.auth);
-    const [open, setOpen] = useState<boolean>(false);
+    // const [open, setOpen] = useState<boolean>(false);
 
     return (
         <div className="w-full h-fit bg-white shadow-lg p-6 rounded-lg transition-transform transform hover:scale-105">

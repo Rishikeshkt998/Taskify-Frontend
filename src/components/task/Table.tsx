@@ -198,10 +198,9 @@
 // export default Table;
 
 
-import React, { useState, useEffect } from "react"; // Import useEffect
-import { BiMessageAltDetail } from "react-icons/bi";
+import React, { useState} from "react"; // Import useEffect
+
 import {
-    MdAttachFile,
     MdKeyboardArrowDown,
     MdKeyboardArrowUp,
     MdKeyboardDoubleArrowUp,
@@ -209,13 +208,12 @@ import {
 import { toast } from "sonner";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../../utils";
 import clsx from "clsx";
-import { FaList } from "react-icons/fa";
 import UserInfo from "../UserInfo";
 import Button from "../Button";
 import ConfirmatioDialog from "../Dialog";
-import axios from "axios";
 import EditTaskModal from "./EditTaskModal";
 import { deleteTask } from "../../Api/task";
+import { useSelector } from "react-redux";
 
 interface TeamMember {
     _id: string;
@@ -235,7 +233,7 @@ interface Task {
 }
 
 interface TableProps {
-    tasks: any; // Change this to initialTasks to indicate the initial data
+    tasks: any; 
 }
 
 const ICONS: Record<string, JSX.Element> = {
@@ -243,8 +241,13 @@ const ICONS: Record<string, JSX.Element> = {
     medium: <MdKeyboardArrowUp />,
     low: <MdKeyboardArrowDown />,
 };
-
+interface RootState {
+    auth: {
+        isAdmin: boolean;
+    };
+}
 const Table: React.FC<TableProps> = ({ tasks }) => {
+    const isAdmin = useSelector((state: RootState) => state.auth.isAdmin);
     const [task, setTasks] = useState<Task[]>(tasks); // Use state for tasks
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
@@ -276,30 +279,14 @@ const Table: React.FC<TableProps> = ({ tasks }) => {
         setOpenEditModal(true);
     };
 
-    const handleSaveEdit = async (updatedTask: Task) => {
-        try {
-            await axios.put(`/api/tasks/${updatedTask._id}`, updatedTask);
-            toast.success("Task updated successfully");
-            setTasks((prevTasks) =>
-                prevTasks.map((task) =>
-                    task._id === updatedTask._id ? updatedTask : task
-                )
-            );
-        } catch (error) {
-            toast.error("Failed to update task");
-        } finally {
-            setOpenEditModal(false);
-            setEditingTask(null);
-        }
-    };
-
     const TableHeader: React.FC = () => (
         <thead className="w-full border-b border-gray-300">
             <tr className="w-full text-black text-left">
                 <th className="py-2">Task Title</th>
                 <th className="py-2">Priority</th>
                 <th className="py-2">Created At</th>
-                <th className="py-2">Team</th>
+                {isAdmin && <th className="py-2">Team</th>}
+                {!isAdmin && <th className="py-2">Stage</th>}
             </tr>
         </thead>
     );
@@ -323,13 +310,14 @@ const Table: React.FC<TableProps> = ({ tasks }) => {
                     </span>
                 </div>
             </td>
+            
 
             <td className="py-2">
                 <span className="text-sm text-gray-600">
                     {formatDate(new Date(task?.date))}
                 </span>
             </td>
-
+            {isAdmin &&
             <td className="py-2">
                 <div className="flex">
                     {task?.team?.map((m, index) => (
@@ -345,7 +333,17 @@ const Table: React.FC<TableProps> = ({ tasks }) => {
                     ))}
                 </div>
             </td>
+            }
+            {!isAdmin &&
+                <div className="flex gap-1 items-center pt-2">
+                   
+                    <span className="capitalize line-clamp-1">
+                        {task?.stage} 
+                    </span>
+                </div>
 
+            }
+            {isAdmin &&
             <td className="py-2 flex gap-2 md:gap-4 justify-end">
                 <Button
                     className="text-blue-600 hover:text-blue-500 sm:px-0 text-sm md:text-base"
@@ -361,6 +359,7 @@ const Table: React.FC<TableProps> = ({ tasks }) => {
                     onClick={() => deleteClicks(task._id)}
                 />
             </td>
+            }
         </tr>
     );
 
@@ -387,7 +386,7 @@ const Table: React.FC<TableProps> = ({ tasks }) => {
                 open={openEditModal}
                 setOpen={setOpenEditModal}
                 task={editingTask}
-                onSave={handleSaveEdit}
+                
             />
         </>
     );

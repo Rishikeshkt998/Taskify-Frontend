@@ -30,6 +30,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({ task }) => {
     const navigate = useNavigate();
 
     const duplicateHandler = () => {
+        console.log(open)
         // Add duplicate logic here
     };
 

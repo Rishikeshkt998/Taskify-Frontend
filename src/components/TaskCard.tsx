@@ -1,20 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import clsx from "clsx";
-import React, { useState } from "react";
+import React from "react";
 import {
-    MdAttachFile,
     MdKeyboardArrowDown,
     MdKeyboardArrowUp,
     MdKeyboardDoubleArrowUp,
 } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../utils";
-import { BiMessageAltDetail } from "react-icons/bi";
-import { FaList } from "react-icons/fa";
-import { IoMdAdd } from "react-icons/io";
+import {  PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../utils";
+
 import TaskDialog from "./task/TaskDialog";
-import UserInfo from "./UserInfo";
 // import AddSubTask from "./task/AddSubTask";
 
 // Define types for the task structure
@@ -46,7 +42,7 @@ const ICONS:any = {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     const user = useSelector((state: RootState) => state.auth);
-    const [open, setOpen] = useState(false);
+    // const [open, setOpen] = useState(false);
 
     return (
         <>
@@ -54,12 +50,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                 <div className='w-full flex justify-between'>
                     <div
                         className={clsx(
-                            "flex flex-1 gap-1 items-center text-sm font-medium",
+                            "flex flex-1 gap-1 items-center text-xs font-medium",
                             PRIOTITYSTYELS[task?.priority]
                         )}
                     >
                         <span className='text-lg'>{ICONS[task?.priority]}</span>
-                        <span className='uppercase'>{task?.priority} Priority</span>
+                        <span className='uppercase '>{task?.priority} Priority</span>
                     </div>
 
                     {user?.isAdmin && <TaskDialog task={task} />}

@@ -101,6 +101,27 @@ export const editTask = async (
         throw error;
     }
 };
+export const editTaskForManager = async (
+    id: string,
+    title: string,
+    date: Date | string,
+    stage: any,
+    priority: any
+): Promise<any> => {
+    try {
+        const res = await Api.put(taskRoutes.editTask, {
+            id,
+            title,
+            date,
+            stage,
+            priority,
+        });
+        return res;
+    } catch (error) {
+        console.error('Error in adding task:', error);
+        throw error;
+    }
+};
 
 export const deleteTask = async (id:any
 ): Promise<any> => {

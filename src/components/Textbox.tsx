@@ -15,7 +15,7 @@ interface TextboxProps {
 }
 const Textbox = forwardRef<HTMLInputElement, TextboxProps>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ({ type, placeholder, label, className, register, name,value, error }, ref) => {
+    ({ type, placeholder, label, className, register, name,value, error }) => {
         return (
             <div className="w-full flex flex-col gap-1">
                 {label && (

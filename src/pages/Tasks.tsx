@@ -608,22 +608,22 @@ interface Params {
   [key: string]: string | undefined;
 }
 
-interface TaskType {
-  todo: string;
-  "in progress": string;
-  completed: string;
-}
+// interface TaskType {
+//   todo: string;
+//   "in progress": string;
+//   completed: string;
+// }
 
 const TABS = [
   { title: "Board View", icon: <MdGridView /> },
   { title: "List View", icon: <FaList /> },
 ];
 
-const TASK_TYPE: TaskType = {
-  todo: "bg-blue-600",
-  "in progress": "bg-yellow-600",
-  completed: "bg-green-600",
-};
+// const TASK_TYPE: TaskType = {
+//   todo: "bg-blue-600",
+//   "in progress": "bg-yellow-600",
+//   completed: "bg-green-600",
+// };
 
 interface Task {
   _id: string;
@@ -650,7 +650,7 @@ const Tasks: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Moment | null>(null); // Use Moment instead of Date
+  const [selectedDate, setSelectedDate] = useState<Moment | undefined>(undefined); // Use Moment instead of Date
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
 
   const status = params?.status || "";
@@ -664,6 +664,7 @@ const Tasks: React.FC = () => {
       setFilteredTasks(response?.data?.tasks);
       setLoading(false);
     } catch (err) {
+      console.log(error)
       setLoading(false);
       setError("Failed to load tasks. Please try again later.");
       console.error(err);
@@ -723,7 +724,7 @@ const Tasks: React.FC = () => {
       <div className="w-full md:w-1/4 p-4 mt-4 md:mt-16 border-t md:border-t-0 md:border-l">
         <h3 className="font-bold text-lg mb-2">Filter by Date</h3>
         <Calendar
-          onChange={setSelectedDate}
+          onChange={(date: Moment | null) => setSelectedDate(date || undefined)}
           value={selectedDate}
           className="border rounded-lg"
         />

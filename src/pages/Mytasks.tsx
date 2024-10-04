@@ -261,27 +261,28 @@ import Calendar from "rc-calendar";
 import "rc-calendar/assets/index.css";
 import Table from "../components/task/Table";
 import moment, { Moment } from "moment"; // Import Moment.js
+import TableForManager from "../components/task/TableForManger";
 
 interface Params {
     [key: string]: string | undefined;
 }
 
-interface TaskType {
-    todo: string;
-    "in progress": string;
-    completed: string;
-}
+// interface TaskType {
+//     todo: string;
+//     "in progress": string;
+//     completed: string;
+// }
 
 const TABS = [
     { title: "Board View", icon: <MdGridView /> },
     { title: "List View", icon: <FaList /> },
 ];
 
-const TASK_TYPE: TaskType = {
-    todo: "bg-blue-600",
-    "in progress": "bg-yellow-600",
-    completed: "bg-green-600",
-};
+// const TASK_TYPE: TaskType = {
+//     todo: "bg-blue-600",
+//     "in progress": "bg-yellow-600",
+//     completed: "bg-green-600",
+// };
 
 interface Task {
     _id: string;
@@ -308,7 +309,8 @@ const Mytasks: React.FC = () => {
     const [open, setOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedDate, setSelectedDate] = useState<Moment | null>(null); // Use Moment instead of Date
+    const [selectedDate, setSelectedDate] = useState<Moment | undefined>(undefined); // Use Moment instead of Date
+    const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
     // const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
 
     const status = params?.status || "";
@@ -337,6 +339,19 @@ const Mytasks: React.FC = () => {
     useEffect(() => {
         fetchTasks();
     }, [isAdmin]); 
+    useEffect(() => {
+        if (selectedDate) {
+            const filtered = tasks.filter(
+                (task) => moment(task.date).isSame(selectedDate, 'day')
+            );
+            setFilteredTasks(filtered);
+        } else {
+            setFilteredTasks(tasks);
+        }
+    }, [selectedDate, tasks]);
+    useEffect(() => {
+        fetchTasks();
+    }, []);
 
     if (loading) {
         return (
@@ -353,39 +368,61 @@ const Mytasks: React.FC = () => {
             </div>
         );
     }
-
     return (
-        <div className="w-full">
-            <div className="flex items-center justify-between mb-4">
-                <Title title={status ? `${status} Tasks` : "Tasks"} />
+        <div className="w-full flex flex-col md:flex-row gap-4">
 
-                {!status && isAdmin && ( // Only show "Create Task" if admin
-                    <Button
-                        onClick={() => setOpen(true)}
-                        label="Create Task"
-                        icon={<IoMdAdd className="text-lg" />}
-                        className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5"
-                    />
+            <div className="flex-1 p-4">
+                <div className="flex items-center justify-between mb-4">
+                    <Title title={status ? `${status} Tasks` : "Tasks"} />
+
+                    {/* Button to create a task */}
+                    {!status && isAdmin && (
+                        <Button
+                            onClick={() => setOpen(true)}
+                            label="Create Task"
+                            icon={<IoMdAdd className="text-lg" />}
+                            className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5"
+                        />
+                    )}
+                </div>
+
+                {/* Tabs to toggle between Board View and List View */}
+                <Tabs tabs={TABS} setSelected={setSelected}>
+                    {selected !== 1 ? (
+                        <BoardView tasks={filteredTasks} />
+                    ) : (
+                        <div className="w-full">
+                            {!isAdmin ? (
+                                <Table tasks={tasks} />
+                            ) : (
+                                <TableForManager tasks={tasks} />
+                            )}
+                        </div>
+                    )}
+                </Tabs>
+                {isAdmin && (
+                    <AddMyTask open={open} setOpen={setOpen} />
                 )}
+
+                
             </div>
 
-            <Tabs tabs={TABS} setSelected={setSelected}>
-                {selected !== 1 ? (
-                    <BoardView tasks={tasks} />
-                ) : (
-                    <div className="w-full">
-                        <Table tasks={tasks}/>
-                    </div>
-                )}
-            </Tabs>
-
-            {isAdmin && ( 
-                <AddMyTask open={open} setOpen={setOpen} />
-            )}
+            <div className="w-full md:w-1/4 p-4 mt-4 md:mt-16 border-t md:border-t-0 md:border-l">
+                <h3 className="font-bold text-lg mb-2">Filter by Date</h3>
+                <Calendar
+                    onChange={(date: Moment | null) => setSelectedDate(date || undefined)}
+                    value={selectedDate}
+                    className="border rounded-lg"
+                />
+            </div>
         </div>
+    )
 
-    );
+    
 };
 
 export default Mytasks;
+
+
+
 
