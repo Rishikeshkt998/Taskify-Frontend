@@ -1,21 +1,22 @@
 import React from "react";
 import {
     MdDashboard,
+    MdLogout,
     MdOutlineAddTask,
     MdOutlinePendingActions,
-    MdSettings,
     MdTaskAlt,
 } from "react-icons/md";
 import { FaTasks} from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
-import { setOpenSidebar } from "../store/slice/authSlice";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { logout, setOpenSidebar } from "../store/slice/authSlice";
 import clsx from "clsx";
 
 interface LinkData {
     label: string;
     link: string;
     icon: JSX.Element;
+    disabled:boolean
 }
 
 const linkData: LinkData[] = [
@@ -23,31 +24,37 @@ const linkData: LinkData[] = [
         label: "Dashboard",
         link: "dashboard",
         icon: <MdDashboard />,
+        disabled:false,
     },
     {
         label: "My Tasks",
         link: "mytasks",
         icon: <FaTasks />,
+        disabled: false,
     },
     {
         label: "Assigned Tasks",
         link: "tasks",
         icon: <FaTasks />,
+        disabled: false,
     },
     {
         label: "Completed",
         link: "completed",
         icon: <MdTaskAlt />,
+        disabled: true,
     },
     {
         label: "In Progress",
         link: "in-progress",
         icon: <MdOutlinePendingActions />,
+        disabled: true,
     },
     {
         label: "To Do",
         link: "todo",
         icon: <MdOutlinePendingActions />,
+        disabled: true,
     },
     // {
     //     label: "Team",
@@ -89,11 +96,39 @@ const Sidebar: React.FC = () => {
     interface NavLinkProps {
         el: LinkData; 
     }
+    const navigate=useNavigate()
+    const handleLogout = () => {
+        dispatch(logout());
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userValue');
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('isAdmin');
+
+
+        navigate('/');
+    };
+    
     const NavLink: React.FC<NavLinkProps> = ({ el }) => {
+        const handleClick = (e: React.MouseEvent) => {
+            if (el.disabled) {
+                e.preventDefault();
+            }
+        };
         return (
+            // <Link
+            //     to={el.link}
+            //     onClick={closeSidebar}
+            //     className={clsx(
+            //         "w-full lg:w-3/4 flex gap-2 px-3 py-2 rounded-full items-center text-gray-800 text-base hover:bg-[#2564ed2d]",
+            //         path === el.link.split("/")[0] ? "bg-blue-700 text-neutral-100" : ""
+            //     )}
+            // >
             <Link
-                to={el.link}
-                onClick={closeSidebar}
+                to={el?.disabled ? "#" : el.link} // Disable link navigation
+                onClick={(e) => {
+                    handleClick(e);
+                    if (!el.disabled) closeSidebar(); // Close sidebar only if not disabled
+                }}
                 className={clsx(
                     "w-full lg:w-3/4 flex gap-2 px-3 py-2 rounded-full items-center text-gray-800 text-base hover:bg-[#2564ed2d]",
                     path === el.link.split("/")[0] ? "bg-blue-700 text-neutral-100" : ""
@@ -121,9 +156,12 @@ const Sidebar: React.FC = () => {
             </div>
 
             <div>
-                <button className="w-full flex gap-2 p-2 items-center text-lg text-gray-800">
-                    <MdSettings />
-                    <span>Settings</span>
+                <button
+                    className="w-full flex gap-2 p-2 items-center text-lg text-gray-800"
+                    onClick={handleLogout}
+                >
+                    <MdLogout />
+                    <span>Logout</span>
                 </button>
             </div>
         </div>

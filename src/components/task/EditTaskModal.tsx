@@ -8,7 +8,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Button from "../Button";
 import ModalWrapper from "../ModelWrapper";
 import SelectList from "../SelectList";
-import { editTask } from "../../Api/task";
+import {  editTaskForManager } from "../../Api/task";
 import UserListForEdit from "./UserListForEdit";
 
 // Constants for lists and priorities
@@ -80,7 +80,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task}) => 
             };
 
             console.log("ids,", updatedTask._id,)
-            const response = await editTask(
+            const response = await editTaskForManager(
                 updatedTask._id,
                 updatedTask.title,
                 updatedTask.date,

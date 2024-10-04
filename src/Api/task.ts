@@ -82,7 +82,6 @@ export const editTask = async (
     id:string,
     title: string,
     date: Date | string,
-    team: string[],
     stage: any,
     priority: any
 ): Promise<any> => {
@@ -91,7 +90,6 @@ export const editTask = async (
             id,
             title,
             date,
-            team,
             stage,
             priority,
         });
@@ -105,14 +103,16 @@ export const editTaskForManager = async (
     id: string,
     title: string,
     date: Date | string,
+    team:string[],
     stage: any,
     priority: any
 ): Promise<any> => {
     try {
-        const res = await Api.put(taskRoutes.editTask, {
+        const res = await Api.put(taskRoutes.editTaskForUser, {
             id,
             title,
             date,
+            team,
             stage,
             priority,
         });
