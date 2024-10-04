@@ -42,7 +42,6 @@ const ICONS:any = {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     const user = useSelector((state: RootState) => state.auth);
-    // const [open, setOpen] = useState(false);
 
     return (
         <>

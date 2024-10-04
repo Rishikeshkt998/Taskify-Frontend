@@ -123,7 +123,7 @@ import { setAdminStatus, setCredentials } from "../store/slice/authSlice";
 import { userLogin } from "../Api/user";
 import { useDispatch} from "react-redux";
 import { toast } from 'react-toastify';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface LoginFormInputs {
     email: string;
@@ -244,7 +244,7 @@ const Login: React.FC = () => {
                             </div>
 
                             <span className="text-sm text-gray-500 hover:text-blue-600 hover:underline cursor-pointer">
-                                Forget Password?
+                                <Link to='/register' className="text-blue-600">Register here</Link>
                             </span>
 
                             <Button

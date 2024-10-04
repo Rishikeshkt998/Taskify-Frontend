@@ -341,7 +341,7 @@ const SignUpForm: React.FC = () => {
                                     </button>
 
                                     <span className="text-sm text-gray-500 hover:text-blue-600 hover:underline cursor-pointer">
-                                        Already have an account? <Link to='/user/login' className="text-blue-600">Login here</Link>
+                                        Already have an account? <Link to='/' className="text-blue-600">Login here</Link>
                                     </span>
                                 </div>
                             </Form>

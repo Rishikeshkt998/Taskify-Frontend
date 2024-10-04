@@ -375,7 +375,6 @@ const Mytasks: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                     <Title title={status ? `${status} Tasks` : "Tasks"} />
 
-                    {/* Button to create a task */}
                     {!status && isAdmin && (
                         <Button
                             onClick={() => setOpen(true)}
@@ -386,7 +385,6 @@ const Mytasks: React.FC = () => {
                     )}
                 </div>
 
-                {/* Tabs to toggle between Board View and List View */}
                 <Tabs tabs={TABS} setSelected={setSelected}>
                     {selected !== 1 ? (
                         <BoardView tasks={filteredTasks} />

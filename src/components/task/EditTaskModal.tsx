@@ -48,13 +48,9 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task}) => 
         return date.toISOString().split("T")[0]; // Converts to "YYYY-MM-DD"
     };
 
-    // Pre-fill form when task data changes
     useEffect(() => {
         if (task) {
-            // Set task data into form fields
             setValue("title", task.title);
-
-            // Format and set the date properly
             if (task.date) {
                 const formattedDate = formatDate(task.date);
                 setValue("date", formattedDate);  
