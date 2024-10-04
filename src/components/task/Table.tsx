@@ -234,6 +234,7 @@ interface Task {
 
 interface TableProps {
     tasks: any; 
+    fetchTasks:()=>void
 }
 
 const ICONS: Record<string, JSX.Element> = {
@@ -246,7 +247,7 @@ interface RootState {
         isAdmin: boolean;
     };
 }
-const Table: React.FC<TableProps> = ({ tasks }) => {
+const Table: React.FC<TableProps> = ({ tasks, fetchTasks }) => {
     const isAdmin = useSelector((state: RootState) => state.auth.isAdmin);
     const [task, setTasks] = useState<Task[]>(tasks); // Use state for tasks
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -386,6 +387,7 @@ const Table: React.FC<TableProps> = ({ tasks }) => {
                 open={openEditModal}
                 setOpen={setOpenEditModal}
                 task={editingTask}
+                fetchTasks={fetchTasks}
                 
             />
         </>

@@ -39,9 +39,10 @@ interface AddTaskProps {
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     task?: Task|undefined; 
     date?: string;
+    fetchTasks:()=>void
 }
 
-const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
+const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date, fetchTasks }) => {
     const {
         register,
         handleSubmit,
@@ -61,10 +62,10 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
     const [uploading, setUploading] = useState<boolean>(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    // Pre-fill the date field whenever the `date` prop changes
+
     useEffect(() => {
         if (date) {
-            setValue('date', date); // Set the date field with the selected date from the calendar
+            setValue('date', date); 
         }
     }, [date, setValue]);
 
@@ -73,7 +74,8 @@ const AddTask: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
             setUploading(true);
             const response = await addTaskToAssign(data.title, data.date, team, stage, priority);
             console.log(response);
-            setOpen(false); // Close modal after successful submission
+            fetchTasks()
+            setOpen(false);
         } catch (error: any) {
             setSubmitError(error.response?.data?.message || "Error submitting the task");
         } finally {

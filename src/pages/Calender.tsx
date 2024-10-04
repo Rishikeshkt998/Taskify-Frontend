@@ -5,7 +5,9 @@ import React, { useState } from "react";
 import { Calendar, momentLocalizer, SlotInfo } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import AddTask from "../components/task/AddTask";
+// import AddTask from "../components/task/AddTask";
+// import AddMyTaskForCalender from "../components/task/AddTaskForCalender";
+import AddTaskForMyCalender from "../components/task/AddTaskForCalender";
 
 const localizer = momentLocalizer(moment);
 
@@ -87,7 +89,7 @@ const MyCalendar: React.FC = () => {
                 />
             </div>
             {isModalOpen && (
-                <AddTask
+                <AddTaskForMyCalender
                     open={isModalOpen}
                     setOpen={setIsModalOpen}
                     // task={isEditMode ? selectedEvent : undefined} 

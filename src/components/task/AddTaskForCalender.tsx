@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useState } from "react";
@@ -7,90 +6,74 @@ import Textbox from "../Textbox";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Button from "../Button";
 import ModalWrapper from "../ModelWrapper";
+import UserList from "./UserList";
 import SelectList from "../SelectList";
-import {  editTaskForManager } from "../../Api/task";
-import UserListForEdit from "./UserListForEdit";
+import { addTaskToAssign } from "../../Api/task";
 
-// Constants for lists and priorities
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORITY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 
-
-
-interface EditTaskModalProps {
-    open: boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    task: any;  // Ensure task prop is passed correctly
-    fetchTasks:()=>void 
+interface Task {
+    title?: string;
+    team?: any[];
+    stage?: string;
+    priority?: string;
+    date?: string;
 }
+
+// interface AddTaskProps {
+//     open: boolean;
+//     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+//     task?: Task; 
+// }
 
 interface FormData {
     title: string;
     date: string;
 }
 
-const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetchTasks }) => {
+interface AddTaskProps {
+    open: boolean;
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    task?: Task | undefined;
+    date?: string;
+}
+
+const AddTaskForMyCalender: React.FC<AddTaskProps> = ({ open, setOpen, task, date }) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
         setValue,
-    } = useForm<FormData>();
+    } = useForm<FormData>({
+        defaultValues: {
+            title: task?.title || "",
+            date: task?.date || date || "",
+        }
+    });
 
-    const [team, setTeam] = useState<any[]>([]);
-    const [stage, setStage] = useState<string>(LISTS[0]);
-    const [priority, setPriority] = useState<string>(PRIORITY[2]);
+    // Other state variables
+    const [team, setTeam] = useState<any[]>(task?.team || []);
+    const [stage, setStage] = useState<any>(task?.stage?.toUpperCase() || LISTS[0]);
+    const [priority, setPriority] = useState<any>(task?.priority?.toUpperCase() || PRIORITY[2]);
     const [uploading, setUploading] = useState<boolean>(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    // Convert date to "YYYY-MM-DD" format for the date input
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toISOString().split("T")[0]; // Converts to "YYYY-MM-DD"
-    };
-
+    // Pre-fill the date field whenever the `date` prop changes
     useEffect(() => {
-        if (task) {
-            setValue("title", task.title);
-            if (task.date) {
-                const formattedDate = formatDate(task.date);
-                setValue("date", formattedDate);  
-            }
-
-            setTeam(task.team || []);  
-            setStage(task.stage.toUpperCase());  
-            setPriority(task.priority.toUpperCase());  
+        if (date) {
+            setValue('date', date); // Set the date field with the selected date from the calendar
         }
-    }, [task, setValue]);
+    }, [date, setValue]);
+
     const submitHandler: SubmitHandler<FormData> = async (data) => {
         try {
             setUploading(true);
-
-            const updatedTask = {
-                ...task, 
-                id: task._id,
-                title: data.title,
-                date: data.date,
-                team,
-                stage,
-                priority,
-            };
-
-            console.log("ids,", updatedTask._id,)
-            const response = await editTaskForManager(
-                updatedTask._id,
-                updatedTask.title,
-                updatedTask.date,
-                updatedTask.team,
-                updatedTask.stage,
-                updatedTask.priority
-            );
-
-            console.log(response); 
-            fetchTasks()
-            setOpen(false);  
+            const response = await addTaskToAssign(data.title, data.date, team, stage, priority);
+            console.log(response);
+            setOpen(false); // Close modal after successful submission
         } catch (error: any) {
-            setSubmitError(error.response?.data?.message || "Error updating the task");
+            setSubmitError(error.response?.data?.message || "Error submitting the task");
         } finally {
             setUploading(false);
         }
@@ -100,11 +83,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetc
         <ModalWrapper open={open} setOpen={setOpen}>
             <form onSubmit={handleSubmit(submitHandler)}>
                 <Dialog.Title as="h2" className="text-base font-bold leading-6 text-gray-900 mb-4">
-                    UPDATE TASK
+                    {task ? "UPDATE TASK" : "ADD TASK"}
                 </Dialog.Title>
 
                 <div className="mt-2 flex flex-col gap-6">
-                    {/* Task title field */}
+                    {/* Task Title Input */}
                     <Textbox
                         placeholder="Task Title"
                         type="text"
@@ -114,12 +97,9 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetc
                         register={register("title", { required: "Title is required" })}
                         error={errors.title ? errors.title.message : ""}
                     />
-
-                    {/* Team selection */}
-                    <UserListForEdit setTeam={setTeam} team={team} />
-
-                    {/* Stage and Date fields */}
+                    <UserList setTeam={setTeam} team={team} />
                     <div className="flex gap-4">
+
                         <SelectList
                             label="Task Stage"
                             lists={LISTS}
@@ -133,13 +113,13 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetc
                                 name="date"
                                 label="Task Date"
                                 className="w-full rounded"
-                                register={register("date", { required: "Date is required!" })}
+                                register={register("date", {
+                                    required: "Date is required!",
+                                })}
                                 error={errors.date ? errors.date.message : ""}
                             />
                         </div>
                     </div>
-
-                    {/* Priority Selection */}
                     <div className="flex gap-4">
                         <SelectList
                             label="Priority Level"
@@ -148,17 +128,13 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetc
                             setSelected={setPriority}
                         />
                     </div>
-
-                    {/* Error Message */}
                     {submitError && <span className="text-red-500">{submitError}</span>}
-
-                    {/* Submit and Cancel Buttons */}
                     <div className="bg-gray-50 py-6 sm:flex sm:flex-row-reverse gap-4">
                         {uploading ? (
-                            <span className="text-sm py-2 text-red-500">Updating...</span>
+                            <span className="text-sm py-2 text-red-500">Uploading...</span>
                         ) : (
                             <Button
-                                label="Update"
+                                label="Submit"
                                 type="submit"
                                 className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700 sm:w-auto"
                             />
@@ -177,8 +153,4 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetc
     );
 };
 
-export default EditTaskModal;
-
-
-
-
+export default AddTaskForMyCalender;

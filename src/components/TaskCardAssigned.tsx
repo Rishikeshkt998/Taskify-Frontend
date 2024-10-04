@@ -228,6 +228,7 @@ interface Task {
 
 interface TaskCardProps {
     task: Task;
+    fetchTasks:()=>void
 }
 
 const ICONS: any = {
@@ -236,7 +237,7 @@ const ICONS: any = {
     NORMAL: <MdKeyboardArrowDown />,
 };
 
-const TaskCardAssigned: React.FC<TaskCardProps> = ({ task }) => {
+const TaskCardAssigned: React.FC<TaskCardProps> = ({ task, fetchTasks }) => {
     const user = useSelector((state: RootState) => state.auth);
     // const [open, setOpen] = useState<boolean>(false);
 
@@ -253,7 +254,7 @@ const TaskCardAssigned: React.FC<TaskCardProps> = ({ task }) => {
                     <span className="uppercase text-gray-600">{task?.priority} Priority</span>
                 </div>
 
-                {user?.isAdmin && <TaskDialog task={task} />}
+                {user?.isAdmin && <TaskDialog task={task} fetchTasks={fetchTasks} />}
             </div>
 
             <div className="flex items-center gap-3 mb-2">

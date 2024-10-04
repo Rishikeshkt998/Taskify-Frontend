@@ -1,57 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Api from "../services/axios";
-import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
-import Cookies from "js-cookie";
 import taskRoutes from "../services/endpoints/taskEndpoints";
 
 
 
 Api.interceptors.request.use(
     (config: any) => {
-        if (config && config.url && config?.url.startsWith("/user")) {
+        if (config && config.url && config?.url.startsWith("/tasks")) {
             const userToken = localStorage.getItem("userToken")
             if (userToken) {
                 config.headers.Authorization = `Bearer ${userToken}`;
             }
-            const courseId = localStorage.getItem("courseId");
-            if (courseId) {
-                config.headers['Course-Id'] = courseId;
-            }
+
         }
         return config;
     },
     (error) => {
-        return Promise.reject(error);
-    }
-);
-Api.interceptors.response.use(
-    function (response) {
-        if (response.data.newAccessToken) {
-            localStorage.setItem("userToken", response.data.newAccessToken);
-        }
-        const id = localStorage.getItem('userData')
-        if (response.data.userId === id && response.data.blocked) {
-            Cookies.remove("userToken");
-            localStorage.removeItem('userInfo')
-        }
-
-        return response;
-    },
-    function (error) {
-        if (error.response && error.response.status === 401 && error.response?.data.message === 'User is not enrolled in this course') {
-            toast.error("you are not enrolled this course");
-            window.history.back();
-            return Promise.reject(error);
-
-        } else if (error.response && error.response.status === 404) {
-            window.location.href = "/error404";
-            return Promise.reject(error);
-
-        } else if (error.response && error.response.status === 500) {
-            window.location.href = "/error500";
-        }
-
         return Promise.reject(error);
     }
 );

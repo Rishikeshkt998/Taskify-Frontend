@@ -18,6 +18,7 @@ interface EditTaskModalProps {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     task: any;  // Ensure task prop is passed correctly
+    fetchTasks:()=>void
 }
 
 interface FormData {
@@ -25,7 +26,7 @@ interface FormData {
     date: string;
 }
 
-const EditTaskModalforManager: React.FC<EditTaskModalProps> = ({ open, setOpen, task }) => {
+const EditTaskModalforManager: React.FC<EditTaskModalProps> = ({ open, setOpen, task, fetchTasks }) => {
     const {
         register,
         handleSubmit,
@@ -83,6 +84,7 @@ const EditTaskModalforManager: React.FC<EditTaskModalProps> = ({ open, setOpen, 
             );
 
             console.log(response);
+            fetchTasks()
             setOpen(false);
         } catch (error: any) {
             setSubmitError(error.response?.data?.message || "Error updating the task");

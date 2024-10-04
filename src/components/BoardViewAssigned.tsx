@@ -18,13 +18,14 @@ import TaskCardAssigned from "./TaskCardAssigned";
 
 interface BoardViewProps {
     tasks: any;
+    fetchTasks:()=>void
 }
 
-const BoardViewAssigned: React.FC<BoardViewProps> = ({ tasks }) => {
+const BoardViewAssigned: React.FC<BoardViewProps> = ({ tasks, fetchTasks }) => {
     return (
         <div className='w-full py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 2xl:gap-10'>
             {tasks.map((task:any, index:any) => (
-                <TaskCardAssigned task={task} key={index} />
+                <TaskCardAssigned task={task} key={index} fetchTasks={fetchTasks}/>
             ))}
         </div>
     );

@@ -24,6 +24,7 @@ interface Task {
 
 interface TaskCardProps {
     task: Task;
+    fetchTasks:()=>void
 }
 
 // Define the user type
@@ -40,7 +41,7 @@ const ICONS:any = {
     NORMAL: <MdKeyboardArrowDown />,
 };
 
-const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, fetchTasks }) => {
     const user = useSelector((state: RootState) => state.auth);
 
     return (
@@ -57,7 +58,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                         <span className='uppercase '>{task?.priority} Priority</span>
                     </div>
 
-                    {user?.isAdmin && <TaskDialog task={task} />}
+                    {user?.isAdmin && <TaskDialog task={task} fetchTasks={fetchTasks}/>}
                 </div>
 
                 <>

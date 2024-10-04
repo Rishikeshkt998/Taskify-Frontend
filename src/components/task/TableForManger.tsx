@@ -35,6 +35,7 @@ interface Task {
 
 interface TableProps {
     tasks: any; // Change this to initialTasks to indicate the initial data
+    fetchTasks:()=>void
 }
 
 const ICONS: Record<string, JSX.Element> = {
@@ -43,7 +44,7 @@ const ICONS: Record<string, JSX.Element> = {
     low: <MdKeyboardArrowDown />,
 };
 
-const TableForManager: React.FC<TableProps> = ({ tasks }) => {
+const TableForManager: React.FC<TableProps> = ({ tasks, fetchTasks }) => {
     const [task, setTasks] = useState<Task[]>(tasks); // Use state for tasks
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
@@ -153,6 +154,7 @@ const TableForManager: React.FC<TableProps> = ({ tasks }) => {
                 open={openEditModal}
                 setOpen={setOpenEditModal}
                 task={editingTask}
+                fetchTasks={fetchTasks}
             />
         </>
     );

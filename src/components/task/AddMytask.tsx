@@ -24,6 +24,7 @@ interface AddTaskProps {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     task?: Task; // Optional task prop for updating
+    fetchTasks:()=>void
 }
 
 interface FormData {
@@ -31,7 +32,7 @@ interface FormData {
     date: string;  // Field for task due date
 }
 
-const AddMyTask: React.FC<AddTaskProps> = ({ open, setOpen, task }) => {
+const AddMyTask: React.FC<AddTaskProps> = ({ open, setOpen, task, fetchTasks }) => {
     const managerid = localStorage.getItem('userValue');
     const {
         register,
@@ -52,7 +53,7 @@ const AddMyTask: React.FC<AddTaskProps> = ({ open, setOpen, task }) => {
 
             const response = await addTask(data.title,managerid, data.date, stage, priority); // Call your API function with the task data
             console.log(response); // Handle the response as needed
-
+            fetchTasks()
             setOpen(false); // Close the modal after submission
         } catch (error: any) {
             setSubmitError(error.response?.data?.message || "Error submitting the task");
